@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-instance-api", "game-instance-api\game-instance-api.csproj", "{2F78A329-293F-4C1F-BE9D-84C9E5738C07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-manager-api", "game-manager-api\game-manager-api.csproj", "{90E79D7B-DD80-400C-BA4D-401BF505F21E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{2F78A329-293F-4C1F-BE9D-84C9E5738C07}.Release|x64.Build.0 = Release|Any CPU
 		{2F78A329-293F-4C1F-BE9D-84C9E5738C07}.Release|x86.ActiveCfg = Release|Any CPU
 		{2F78A329-293F-4C1F-BE9D-84C9E5738C07}.Release|x86.Build.0 = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|x64.Build.0 = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Debug|x86.Build.0 = Debug|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|x64.ActiveCfg = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|x64.Build.0 = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|x86.ActiveCfg = Release|Any CPU
+		{90E79D7B-DD80-400C-BA4D-401BF505F21E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
