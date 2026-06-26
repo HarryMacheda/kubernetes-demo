@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quiz_db
+    environment:
+      POSTGRES_DB: quiz_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  identity-server:
+    build:
+      context: .
+      dockerfile: identity-server/Dockerfile
+    container_name: identity-server
+    ports:
+      - "5000:80"
+    environment:
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=quiz_db;Username=admin;Password=password
+      Jwt__SecretKey: fwefwefdfqwdf23thrtjfe432tgasfdq3445yefwefwefdfqwdf23thrtjfe432tgasfdq3445ye
+      Jwt__Issuer: identity-server
+      Jwt__Audience: api
+      Jwt__ExpirationMinutes: 60
+      OAuth2__Google__ClientId: ${GOOGLE_CLIENT_ID:-your-google-client-id}
+      OAuth2__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
+      OAuth2__Microsoft__ClientId: ${MICROSOFT_CLIENT_ID:-your-microsoft-client-id}
+      OAuth2__Microsoft__ClientSecret: ${MICROSOFT_CLIENT_SECRET:-your-microsoft-client-secret}
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./identity-server:/app/identity-server
+
+volumes:
+  postgres_data:

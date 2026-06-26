@@ -27,9 +27,7 @@ namespace identity_server.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Sign in with email and password to receive a JWT token.
-        /// </summary>
+
         [HttpPost("signin")]
         public async Task<ActionResult<LoginResponse>> SignIn([FromBody] LoginRequest request)
         {
@@ -86,9 +84,98 @@ namespace identity_server.Controllers
             }
         }
 
-        /// <summary>
-        /// Initiates OAuth2 sign-in with the specified provider.
-        /// </summary>
+        [HttpPost("register")]
+        public async Task<ActionResult<LoginResponse>> Register([FromBody] RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new LoginResponse
+                {
+                    Success = false,
+                    Message = "Invalid request"
+                });
+            }
+
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(request.Email))
+                {
+                    return BadRequest(new LoginResponse
+                    {
+                        Success = false,
+                        Message = "Email is required"
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+                {
+                    return BadRequest(new LoginResponse
+                    {
+                        Success = false,
+                        Message = "Password must be at least 6 characters long"
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.Surname))
+                {
+                    return BadRequest(new LoginResponse
+                    {
+                        Success = false,
+                        Message = "First name and surname are required"
+                    });
+                }
+
+                // Check if user already exists
+                var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
+                if (existingUser != null)
+                {
+                    return BadRequest(new LoginResponse
+                    {
+                        Success = false,
+                        Message = "User with this email already exists"
+                    });
+                }
+
+                // Create new user
+                var newUser = await _userRepository.CreateUserAsync(
+                    request.Email,
+                    request.Password,
+                    request.FirstName,
+                    request.Surname
+                );
+
+                var token = _tokenService.GenerateToken(newUser);
+
+                _logger.LogInformation($"New user registered: {request.Email}");
+
+                return Ok(new LoginResponse
+                {
+                    Success = true,
+                    Message = "User registered successfully",
+                    Token = token,
+                    User = new UserDto
+                    {
+                        Id = newUser.Id,
+                        Email = newUser.Email,
+                        FirstName = newUser.FirstName,
+                        Surname = newUser.Surname,
+                        CreatedAt = newUser.CreatedAt
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration");
+                return StatusCode(500, new LoginResponse
+                {
+                    Success = false,
+                    Message = "An error occurred during registration"
+                });
+            }
+        }
+
+
         [HttpGet("signin/{provider}")]
         public IActionResult SignInWithProvider(string provider)
         {
@@ -104,9 +191,6 @@ namespace identity_server.Controllers
             return Challenge(properties, provider);
         }
 
-        /// <summary>
-        /// Handles OAuth2 provider callback.
-        /// </summary>
         [HttpGet("oauth2-callback/{provider}")]
         public async Task<ActionResult<LoginResponse>> OAuth2Callback(string provider)
         {
