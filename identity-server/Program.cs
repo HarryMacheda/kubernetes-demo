@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Authentication;
 using identity_server.Services;
@@ -15,6 +16,9 @@ builder.Services.AddLogging();
 // Configure JWT Authentication
 var jwtSecretKey = builder.Configuration["Jwt:SecretKey"] ?? throw new InvalidOperationException("Jwt:SecretKey is not configured");
 var key = Encoding.UTF8.GetBytes(jwtSecretKey);
+var issuer = builder.Configuration["Jwt:Issuer"] ?? "identity-server";
+var defaultAudience = builder.Configuration["Jwt:Audience"] ?? "api";
+var validAudiences = builder.Configuration.GetSection("Jwt:Audiences").Get<string[]>() ?? [defaultAudience];
 
 builder.Services
     .AddAuthentication(options =>
@@ -29,9 +33,9 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "identity-server",
+            ValidIssuer = issuer,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "api",
+            ValidAudiences = validAudiences,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
@@ -70,5 +74,41 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapPost("/token/validate", (HttpRequest request) =>
+{
+    if (!request.Headers.TryGetValue("Authorization", out var authHeader) ||
+        !authHeader.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.Unauthorized();
+    }
+
+    var token = authHeader.ToString()["Bearer ".Length..].Trim();
+    var tokenHandler = new JwtSecurityTokenHandler();
+
+    try
+    {
+        var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudiences = validAudiences,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        }, out _);
+
+        return Results.Ok(new
+        {
+            IsValid = true,
+            Claims = principal.Claims.Select(claim => new { claim.Type, claim.Value })
+        });
+    }
+    catch (SecurityTokenException)
+    {
+        return Results.Json(new { IsValid = false, Error = "Token validation failed" }, statusCode: 401);
+    }
+});
 
 app.Run();
