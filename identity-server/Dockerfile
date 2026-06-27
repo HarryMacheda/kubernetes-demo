@@ -7,6 +7,7 @@ COPY ["identity-server/identity-server.csproj", "identity-server/"]
 COPY ["standard/standard.csproj", "standard/"]
 COPY ["game-manager-api/game-manager-api.csproj", "game-manager-api/"]
 COPY ["game-instance-api/game-instance-api.csproj", "game-instance-api/"]
+COPY ["quiz-api/quiz-api.csproj", "quiz-api/"]
 
 # Restore dependencies (from solution to handle all projects)
 RUN dotnet restore "game-instance-api.sln"
@@ -16,6 +17,7 @@ COPY ["identity-server/", "identity-server/"]
 COPY ["standard/", "standard/"]
 COPY ["game-manager-api/", "game-manager-api/"]
 COPY ["game-instance-api/", "game-instance-api/"]
+COPY ["quiz-api/", "quiz-api/"]
 
 # Build the project
 RUN dotnet build "identity-server/identity-server.csproj" -c Release -o /app/build

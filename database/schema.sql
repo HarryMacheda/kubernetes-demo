@@ -1,5 +1,5 @@
 CREATE TABLE Users (
-    Id SERIAL PRIMARY KEY,
+    Id UUID PRIMARY KEY,
     Email TEXT NOT NULL UNIQUE,
     Password TEXT NOT NULL,
     FirstName TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE Quiz (
     Name TEXT NOT NULL,
     Type INT NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy INT REFERENCES Users(Id)
+    CreatedBy UUID REFERENCES Users(Id)
 );
 
 CREATE TABLE Questions (
@@ -21,7 +21,7 @@ CREATE TABLE Questions (
     Index INT NOT NULL,
     Type INT NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy INT REFERENCES Users(Id),
+    CreatedBy UUID REFERENCES Users(Id),
     QuestionText TEXT NOT NULL
 );
 

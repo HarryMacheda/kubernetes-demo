@@ -46,7 +46,7 @@ namespace Authentication
                     command.Parameters.AddWithValue("@CreatedAt", user.CreatedAt);
 
                     var result = await command.ExecuteScalarAsync();
-                    user.Id = result != null ? Convert.ToInt32(result) : 0;
+                    user.Id = result != null ? (Guid)result : Guid.Empty;
                 }
             }
 
@@ -84,10 +84,10 @@ namespace Authentication
             return null;
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
-            if (id <= 0)
-                throw new ArgumentException("ID must be greater than 0.", nameof(id));
+            if (id == Guid.Empty)
+                throw new ArgumentException("ID cannot be empty.", nameof(id));
 
             using (var connection = new NpgsqlConnection(_connectionString))
             {
@@ -133,8 +133,8 @@ namespace Authentication
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
-            if (user.Id <= 0)
-                throw new ArgumentException("User ID must be greater than 0.", nameof(user.Id));
+            if (user.Id == Guid.Empty)
+                throw new ArgumentException("User ID cannot be empty.", nameof(user.Id));
 
             using (var connection = new NpgsqlConnection(_connectionString))
             {
@@ -160,10 +160,10 @@ namespace Authentication
             return user;
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(Guid id)
         {
-            if (id <= 0)
-                throw new ArgumentException("ID must be greater than 0.", nameof(id));
+            if (id == Guid.Empty)
+                throw new ArgumentException("ID cannot be empty.", nameof(id));
 
             using (var connection = new NpgsqlConnection(_connectionString))
             {
@@ -184,7 +184,7 @@ namespace Authentication
         {
             return new User
             {
-                Id = reader.GetInt32(0),
+                Id = reader.GetGuid(0),
                 Email = reader.GetString(1),
                 PasswordHash = reader.GetString(2),
                 FirstName = reader.GetString(3),
