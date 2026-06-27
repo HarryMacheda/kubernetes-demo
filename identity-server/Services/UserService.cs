@@ -24,4 +24,28 @@ public class UserService : IUserService
 
         return user.VerifyPassword(password) ? user : null;
     }
+
+    public async Task<User> CreateUser(string email, string password, string firstName, string surname)
+    {
+        var existing = await _repo.GetUserByEmailAsync(email);
+
+        if (existing != null)
+            throw new Exception("User already exists");
+
+        var user = new User
+        {
+            Email = email,
+            FirstName = firstName,
+            Surname = surname,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        user.SetPassword(password);
+
+        return await _repo.CreateUserAsync(
+            user.Email,
+            user.PasswordHash,
+            user.FirstName,
+            user.Surname);
+    }
 }

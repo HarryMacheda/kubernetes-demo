@@ -20,6 +20,7 @@ namespace Authentication
 
             var user = new User
             {
+                Id = Guid.NewGuid(),
                 Email = email,
                 FirstName = firstName,
                 Surname = surname,
@@ -35,18 +36,17 @@ namespace Authentication
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        INSERT INTO Users (Email, Password, FirstName, Surname, CreatedAt)
-                        VALUES (@Email, @PasswordHash, @FirstName, @Surname, @CreatedAt)
-                        RETURNING Id;";
+                        INSERT INTO Users (Id, Email, Password, FirstName, Surname, CreatedAt)
+                        VALUES (@Id, @Email, @PasswordHash, @FirstName, @Surname, @CreatedAt)";
 
+                    command.Parameters.AddWithValue("@Id", user.Id);
                     command.Parameters.AddWithValue("@Email", user.Email);
                     command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
                     command.Parameters.AddWithValue("@FirstName", user.FirstName);
                     command.Parameters.AddWithValue("@Surname", user.Surname);
                     command.Parameters.AddWithValue("@CreatedAt", user.CreatedAt);
 
-                    var result = await command.ExecuteScalarAsync();
-                    user.Id = result != null ? (Guid)result : Guid.Empty;
+                    var result = await command.ExecuteNonQueryAsync();
                 }
             }
 

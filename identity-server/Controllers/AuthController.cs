@@ -12,7 +12,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
         var result = await _auth.Login(
             request.Username,
@@ -29,7 +29,33 @@ public class AuthController : ControllerBase
             refresh_token = result.Value.refreshToken.Token
         });
     }
+
+    [HttpPost("register")]
+public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
+{
+    try
+    {
+        var user = await _auth.Register(
+            request.Username,
+            request.Password,
+            request.FirstName,
+            request.Surname,
+            "web");
+
+        return Ok(user);
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(new { error = ex.Message });
+    }
 }
+}
+
+public record RegisterRequest(
+    string Username,
+    string Password,
+    string FirstName,
+    string Surname);
 
 public record LoginRequest(
     string Username,
