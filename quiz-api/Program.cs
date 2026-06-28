@@ -1,19 +1,25 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using OpenIddict.Validation.AspNetCore;
+using OpenIddict.Validation.SystemNetHttp;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddOpenApi();
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
     {
-        options.Authority = "http://identity-server"; 
-        options.Audience = "api"; 
-        options.RequireHttpsMetadata = false;
+        options.SetIssuer("http://identity-server");
+        options.AddAudiences("api");
+
+        options.UseSystemNetHttp();
+        options.UseAspNetCore();
     });
 
+builder.Services.AddAuthentication(
+    OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+    
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 

@@ -4,25 +4,12 @@ using System.Security.Claims;
 
 [ApiController]
 [Route("api/settings")]
-public class SettingsController : ControllerBase
+public class SettingsController : StandardController
 {
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                  ?? User.FindFirst("sub")?.Value;
-
-        var email = User.FindFirst(ClaimTypes.Email)?.Value
-                 ?? User.FindFirst("email")?.Value;
-
-        var name = User.FindFirst("name")?.Value;
-
-        return Ok(new
-        {
-            id = userId,
-            email,
-            name
-        });
+        return Ok(Context.user);
     }
 }

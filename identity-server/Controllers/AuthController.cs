@@ -48,9 +48,15 @@ public class AuthController : ControllerBase
         principal.SetScopes(
             OpenIddictConstants.Scopes.OpenId,
             OpenIddictConstants.Scopes.Profile,
-            OpenIddictConstants.Scopes.OfflineAccess);
+            OpenIddictConstants.Scopes.OfflineAccess,
+            OpenIddictConstants.Scopes.Email);
 
         principal.SetResources("api");
+
+        foreach (var claim in principal.Claims)
+        {
+            claim.SetDestinations(OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken);
+        }
 
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
@@ -70,7 +76,6 @@ public class AuthController : ControllerBase
             if (user == null)
                 return BadRequest(new { error = "User creation failed" });
 
-            // ❌ DO NOT call SignIn here
             return Ok(new
             {
                 message = "User created successfully",

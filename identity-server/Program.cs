@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
+using OpenIddict.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,7 @@ builder.Services.AddOpenIddict()
     {
         options.UseEntityFrameworkCore()
                .UseDbContext<OpenIddictDbContext>();
+               
     })
     .AddServer(options =>
     {
@@ -69,7 +71,6 @@ builder.Services.AddOpenIddict()
         options.AddDevelopmentSigningCertificate();
 
         options.DisableAccessTokenEncryption();
-
         options.UseAspNetCore()
                .EnableAuthorizationEndpointPassthrough()
                .EnableTokenEndpointPassthrough()
