@@ -29,7 +29,7 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=quiz_db;Username=admin;Password=password
       Jwt__SecretKey: fwefwefdfqwdf23thrtjfe432tgasfdq3445yefwefwefdfqwdf23thrtjfe432tgasfdq3445ye
-      Jwt__Issuer: identity-server
+      Jwt__Issuer: http://identity-server
       Jwt__Audience: api
       Jwt__ExpirationMinutes: 60
       OAuth2__Google__ClientId: ${GOOGLE_CLIENT_ID:-your-google-client-id}
@@ -42,6 +42,21 @@ services:
         condition: service_healthy
     volumes:
       - ./identity-server:/app/identity-server
+  api:
+    build:
+      context: .
+      dockerfile: quiz-api/Dockerfile
+    container_name: quiz_api
+    ports:
+      - "6000:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://identity-server
+      Authentication__Audience: api
+
+    depends_on:
+      - identity-server
+      - postgres
 
 volumes:
   postgres_data:
