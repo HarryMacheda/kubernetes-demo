@@ -56,6 +56,7 @@ builder.Services.AddOpenIddict()
     })
     .AddServer(options =>
     {
+        options.SetIssuer(new Uri("http://identity-server"));
         options.SetAuthorizationEndpointUris("/connect/authorize");
         options.SetTokenEndpointUris("/connect/token");
 
@@ -67,6 +68,8 @@ builder.Services.AddOpenIddict()
         options.AddDevelopmentEncryptionCertificate();
         options.AddDevelopmentSigningCertificate();
 
+        options.DisableAccessTokenEncryption();
+
         options.UseAspNetCore()
                .EnableAuthorizationEndpointPassthrough()
                .EnableTokenEndpointPassthrough()
@@ -76,13 +79,14 @@ builder.Services.AddOpenIddict()
             OpenIddictConstants.Scopes.OpenId,
             OpenIddictConstants.Scopes.Profile,
             OpenIddictConstants.Scopes.Email,
-            OpenIddictConstants.Scopes.OfflineAccess);
+            OpenIddictConstants.Scopes.OfflineAccess,
+            "api");
     })
     .AddValidation(options =>
     {
         options.UseLocalServer();
         options.UseAspNetCore();
-    });;
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 

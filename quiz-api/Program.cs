@@ -9,7 +9,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = "identity-server"; 
+        options.Authority = "http://identity-server"; 
         options.Audience = "api"; 
         options.RequireHttpsMetadata = false;
     });
