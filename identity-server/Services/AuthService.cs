@@ -13,7 +13,7 @@ public class AuthService : IAuthService
         _logger = logger;
     }
 
-    public async Task<(string accessToken, RefreshToken refreshToken)?> Login(
+    public async Task<User?> Login(
         string username,
         string password,
         string clientId)
@@ -53,13 +53,10 @@ public class AuthService : IAuthService
             return null;
         }
 
-        var access = _tokens.CreateAccessToken(user, clientId);
-        var refresh = _tokens.CreateRefreshToken(user, clientId);
-
-        return (access, refresh);
+        return user;
     }
 
-    public async Task<AuthResponse> Register(
+    public async Task<User> Register(
         string email,
         string password,
         string firstName,
@@ -78,12 +75,6 @@ public class AuthService : IAuthService
             firstName,
             surname);
 
-        var accessToken = _tokens.CreateAccessToken(user, clientId);
-        var refreshToken = _tokens.CreateRefreshToken(user, clientId);
-
-
-        return new AuthResponse(
-            accessToken,
-            refreshToken.Token);
+        return user;
     }
 }

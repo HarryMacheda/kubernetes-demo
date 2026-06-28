@@ -2,11 +2,11 @@ using Authentication;
 
 public interface IAuthService
 {
-    Task<(string accessToken, RefreshToken refreshToken)?> Login(
+    Task<User?> Login(
         string username,
         string password,
         string clientId
         );
 
-    Task<AuthResponse> Register(string email, string password, string firstName, string surname, string clientId);
+    Task<User> Register(string email, string password, string firstName, string surname, string clientId);
 }

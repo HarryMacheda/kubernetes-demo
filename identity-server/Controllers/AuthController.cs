@@ -1,4 +1,8 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Abstractions;
+using OpenIddict.Server.AspNetCore;
 
 [ApiController]
 [Route("api/auth")]
@@ -11,44 +15,73 @@ public class AuthController : ControllerBase
         _auth = auth;
     }
 
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
+    [HttpPost("~/connect/token")]
+    public async Task<IActionResult> Exchange()
     {
-        var result = await _auth.Login(
-            request.Username,
-            request.Password,
-            request.ClientId
-            );
+        var request = HttpContext.GetOpenIddictServerRequest();
 
-        if (result == null)
-            return Unauthorized();
+        if (request == null)
+            return BadRequest();
 
-        return Ok(new
+        var user = await _auth.Login(
+            request.Username!,
+            request.Password!,
+            request.ClientId ?? "web");
+
+        if (user == null)
         {
-            access_token = result.Value.accessToken,
-            refresh_token = result.Value.refreshToken.Token
-        });
+            return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
+        var identity = new ClaimsIdentity(
+            OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+        identity.SetClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
+        identity.SetClaim(OpenIddictConstants.Claims.Email, user.Email);
+        identity.SetClaim(OpenIddictConstants.Claims.Name,
+            $"{user.FirstName} {user.Surname}");
+
+        identity.SetClaim("client_id", request.ClientId ?? "web");
+
+        var principal = new ClaimsPrincipal(identity);
+
+        principal.SetScopes(
+            OpenIddictConstants.Scopes.OpenId,
+            OpenIddictConstants.Scopes.Profile,
+            OpenIddictConstants.Scopes.OfflineAccess);
+
+        principal.SetResources("api");
+
+        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
     [HttpPost("register")]
-public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
-{
-    try
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var user = await _auth.Register(
-            request.Username,
-            request.Password,
-            request.FirstName,
-            request.Surname,
-            "web");
+        try
+        {
+            var user = await _auth.Register(
+                request.Username,
+                request.Password,
+                request.FirstName,
+                request.Surname,
+                "web");
 
-        return Ok(user);
+            if (user == null)
+                return BadRequest(new { error = "User creation failed" });
+
+            // ❌ DO NOT call SignIn here
+            return Ok(new
+            {
+                message = "User created successfully",
+                userId = user.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
-    catch (Exception ex)
-    {
-        return BadRequest(new { error = ex.Message });
-    }
-}
 }
 
 public record RegisterRequest(
