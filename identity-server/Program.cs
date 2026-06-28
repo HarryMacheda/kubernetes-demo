@@ -1,6 +1,7 @@
 using System.Text;
 using Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,7 +41,36 @@ builder.Services.AddScoped<IUserRepository>(_ => new PostgresUserRepository(conn
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddDbContext<OpenIddictDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+    options.UseOpenIddict();
+});
 
+builder.Services.AddOpenIddict()
+    .AddCore(options =>
+    {
+        options.UseEntityFrameworkCore()
+               .UseDbContext<OpenIddictDbContext>();
+    })
+    .AddServer(options =>
+    {
+        options.SetAuthorizationEndpointUris("/connect/authorize");
+        options.SetTokenEndpointUris("/connect/token");
+
+        options.AllowPasswordFlow();
+        options.AllowRefreshTokenFlow();
+
+        options.AcceptAnonymousClients();
+
+        options.AddDevelopmentEncryptionCertificate();
+        options.AddDevelopmentSigningCertificate();
+
+        options.UseAspNetCore()
+               .EnableAuthorizationEndpointPassthrough()
+               .EnableTokenEndpointPassthrough()
+               .DisableTransportSecurityRequirement();
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 

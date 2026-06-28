@@ -11,12 +11,17 @@ namespace Authentication
 
         public void SetPassword(string plainPassword)
         {
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(plainPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
+            PasswordHash = HashPassword(plainPassword);
         }
         
         public bool VerifyPassword(string plainPassword)
         {
             return BCrypt.Net.BCrypt.Verify(plainPassword, PasswordHash);
+        }
+
+        public static string HashPassword(string plainPassword)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(plainPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
         }
     }
 }

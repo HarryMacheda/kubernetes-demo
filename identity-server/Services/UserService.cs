@@ -40,11 +40,9 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow
         };
 
-        user.SetPassword(password);
-
         return await _repo.CreateUserAsync(
             user.Email,
-            user.PasswordHash,
+            password,
             user.FirstName,
             user.Surname);
     }

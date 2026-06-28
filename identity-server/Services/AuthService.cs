@@ -4,32 +4,54 @@ public class AuthService : IAuthService
 {
     private readonly ITokenService _tokens;
     private readonly IUserService _users;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(ITokenService tokens, IUserService users)
+    public AuthService(ITokenService tokens, IUserService users, ILogger<AuthService> logger)
     {
         _tokens = tokens;
         _users = users;
+        _logger = logger;
     }
 
     public async Task<(string accessToken, RefreshToken refreshToken)?> Login(
         string username,
         string password,
-        string clientId
-        )
+        string clientId)
     {
+
         var client = ClientStore.Clients
             .FirstOrDefault(c => c.ClientId == clientId);
 
-        if (client == null )
+        if (client == null)
+        {
+            _logger.LogWarning(
+                "Login failed. Client not found. ClientId: {ClientId}",
+                clientId);
+
             return null;
+        }
 
         var user = await _users.GetByEmail(username);
 
         if (user == null)
-            return null;
+        {
+            _logger.LogWarning(
+                "Login failed. User not found. Username: {Username}",
+                username);
 
-        if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             return null;
+        }
+        if (!user.VerifyPassword(password))
+        {
+            _logger.LogWarning(
+                "Login failed. Invalid password. Username: {Username}, Plain Text: {PlainTextPassword}, PasswordHash: {PasswordHash}, HashedPassword: {HashedPassword}",
+                username,
+                password,
+                user.PasswordHash,
+                User.HashPassword(password));
+
+            return null;
+        }
 
         var access = _tokens.CreateAccessToken(user, clientId);
         var refresh = _tokens.CreateRefreshToken(user, clientId);
