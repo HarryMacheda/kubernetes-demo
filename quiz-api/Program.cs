@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection is not configured");
 builder.Services.AddScoped<IQuizRepository>(_ => new PostgresQuizRepository(connectionString));
+builder.Services.AddScoped<IQuestionRepository>(_ => new PostgresQuestionRepository(connectionString));
 
 builder.Services.AddOpenApi();
 

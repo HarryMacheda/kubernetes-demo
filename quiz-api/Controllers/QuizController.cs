@@ -71,4 +71,5 @@ public class QuizController : StandardController
         await _quizRepo.UpdateQuizAsync(quiz);
         return Ok(quiz);
     }
+    
 }

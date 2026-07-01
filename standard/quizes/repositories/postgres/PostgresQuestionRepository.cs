@@ -25,7 +25,7 @@ public class PostgresQuestionRepository : IQuestionRepository
 
                 command.Parameters.AddWithValue("@QuizId", question.QuizId);
                 command.Parameters.AddWithValue("@Index", question.Index);
-                command.Parameters.AddWithValue("@Type", question.Type);
+                command.Parameters.AddWithValue("@Type", (int)question.Type);
                 command.Parameters.AddWithValue("@CreatedAt", question.CreatedAt);
                 command.Parameters.AddWithValue("@CreatedBy", question.CreatedBy);
                 command.Parameters.AddWithValue("@QuestionText", question.QuestionText);
@@ -48,7 +48,7 @@ public class PostgresQuestionRepository : IQuestionRepository
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                    SELECT QuizId, Index, Type, CreatedAt, CreatedBy, QuestionText
+                    SELECT Id, QuizId, Index, Type, CreatedAt, CreatedBy, QuestionText
                     FROM Questions
                     WHERE Id = @Id;";
 
@@ -84,7 +84,7 @@ public class PostgresQuestionRepository : IQuestionRepository
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                    SELECT QuizId, Index, Type, CreatedAt, CreatedBy, QuestionText
+                    SELECT Id, QuizId, Index, Type, CreatedAt, CreatedBy, QuestionText
                     FROM Questions
                     WHERE QuizId = @Id;";
 
