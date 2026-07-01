@@ -51,4 +51,24 @@ public class QuizController : StandardController
 
         return Ok(quiz);
     }
+
+    public class UpdateQuizRequest
+    {
+        public string Name {get; set;} = string.Empty;
+    }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateQuiz(int id, [FromBody] UpdateQuizRequest request)
+    {    
+        IQuiz quiz = await _quizRepo.GetQuizByIdAsync(id);
+        if (quiz == null)
+        {
+            return NotFound();
+        }
+
+        quiz.Name = request.Name;
+        await _quizRepo.UpdateQuizAsync(quiz);
+        return Ok(quiz);
+    }
 }
