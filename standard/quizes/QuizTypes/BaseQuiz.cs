@@ -26,6 +26,4 @@ public abstract class BaseQuiz : IQuiz
             _ => throw new ArgumentOutOfRangeException(nameof(type), $"Unsupported quiz type: {type}")
         };
     }
-
-    public static IQuiz 
 }

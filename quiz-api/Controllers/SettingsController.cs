@@ -12,4 +12,11 @@ public class SettingsController : StandardController
     {
         return Ok(Context.user);
     }
+
+    [HttpGet("quiz")]
+    [Authorize]
+    public IActionResult Quiz()
+    {
+        return Ok(QuizSettingsHelper.GetQuizSettings(Context));
+    }
 }

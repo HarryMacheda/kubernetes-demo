@@ -53,6 +53,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       Authentication__Authority: http://identity-server
       Authentication__Audience: api
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=quiz_db;Username=admin;Password=password
+
 
     depends_on:
       - identity-server

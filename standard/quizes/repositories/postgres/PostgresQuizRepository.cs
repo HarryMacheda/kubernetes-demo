@@ -24,7 +24,7 @@ public class PostgresQuizRepository : IQuizRepository
                     ";
 
                 command.Parameters.AddWithValue("@Name", quiz.Name);
-                command.Parameters.AddWithValue("@Type", quiz.Type);
+                command.Parameters.AddWithValue("@Type", (int)quiz.Type);
                 command.Parameters.AddWithValue("@CreatedAt", quiz.CreatedAt);
                 command.Parameters.AddWithValue("@CreatedBy", quiz.CreatedBy);
 
@@ -112,6 +112,11 @@ public class PostgresQuizRepository : IQuizRepository
                     SET Name = @Name, Type = @Type, CreatedAt = @CreatedAt, CreatedBy = @CreatedBy
                     WHERE Id = @Id";
 
+                command.Parameters.AddWithValue("@Name", quiz.Name);
+                command.Parameters.AddWithValue("@Type", (int)quiz.Type);
+                command.Parameters.AddWithValue("@CreatedAt", quiz.CreatedAt);
+                command.Parameters.AddWithValue("@CreatedBy", quiz.CreatedBy);
+                command.Parameters.AddWithValue("@Id", quiz.Id);
                 var reader = await command.ExecuteNonQueryAsync();
             }
         }
